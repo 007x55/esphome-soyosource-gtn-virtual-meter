@@ -1,8 +1,7 @@
 #include "soyosource_virtual_meter.h"
 #include "esphome/core/log.h"
 
-namespace esphome {
-namespace soyosource_virtual_meter {
+namespace esphome::soyosource_virtual_meter {
 
 static const char *const TAG = "soyosource_virtual_meter";
 
@@ -26,7 +25,11 @@ void SoyosourceVirtualMeter::setup() {
 void SoyosourceVirtualMeter::dump_config() {
   ESP_LOGCONFIG(TAG, "SoyosourceVirtualMeter:");
   ESP_LOGCONFIG(TAG, "  Address: 0x%02X", this->address_);
+
   LOG_SENSOR("", "Power Demand", this->power_demand_sensor_);
+  LOG_SENSOR("", "Operation Status", this->operation_status_sensor_);
+
+  LOG_TEXT_SENSOR("", "Operation Mode", this->operation_mode_text_sensor_);
 }
 
 void SoyosourceVirtualMeter::update() {
@@ -201,5 +204,4 @@ void SoyosourceVirtualMeter::publish_state_(text_sensor::TextSensor *text_sensor
   text_sensor->publish_state(state);
 }
 
-}  // namespace soyosource_virtual_meter
-}  // namespace esphome
+}  // namespace esphome::soyosource_virtual_meter

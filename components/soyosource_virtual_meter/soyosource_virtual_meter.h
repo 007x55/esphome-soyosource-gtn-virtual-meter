@@ -7,8 +7,7 @@
 #include "esphome/components/text_sensor/text_sensor.h"
 #include "esphome/components/soyosource_modbus/soyosource_modbus.h"
 
-namespace esphome {
-namespace soyosource_virtual_meter {
+namespace esphome::soyosource_virtual_meter {
 
 enum PowerDemandCalculation {
   POWER_DEMAND_CALCULATION_DUMB_OEM_BEHAVIOR,
@@ -69,19 +68,19 @@ class SoyosourceVirtualMeter : public PollingComponent, public soyosource_modbus
  protected:
   PowerDemandCalculation power_demand_calculation_{POWER_DEMAND_CALCULATION_DUMB_OEM_BEHAVIOR};
 
-  number::Number *buffer_number_;
-  number::Number *manual_power_demand_number_;
-  number::Number *max_power_demand_number_;
-  number::Number *power_demand_divider_number_;
+  number::Number *buffer_number_{nullptr};
+  number::Number *manual_power_demand_number_{nullptr};
+  number::Number *max_power_demand_number_{nullptr};
+  number::Number *power_demand_divider_number_{nullptr};
 
-  sensor::Sensor *power_sensor_;
-  sensor::Sensor *operation_status_sensor_;
-  sensor::Sensor *power_demand_sensor_;
+  sensor::Sensor *power_sensor_{nullptr};
+  sensor::Sensor *operation_status_sensor_{nullptr};
+  sensor::Sensor *power_demand_sensor_{nullptr};
 
-  switch_::Switch *manual_mode_switch_;
-  switch_::Switch *emergency_power_off_switch_;
+  switch_::Switch *manual_mode_switch_{nullptr};
+  switch_::Switch *emergency_power_off_switch_{nullptr};
 
-  text_sensor::TextSensor *operation_mode_text_sensor_;
+  text_sensor::TextSensor *operation_mode_text_sensor_{nullptr};
 
   bool zero_output_on_min_power_demand_{true};
   int16_t buffer_;
@@ -104,5 +103,4 @@ class SoyosourceVirtualMeter : public PollingComponent, public soyosource_modbus
   int16_t calculate_power_demand_oem_(int16_t consumption);
 };
 
-}  // namespace soyosource_virtual_meter
-}  // namespace esphome
+}  // namespace esphome::soyosource_virtual_meter

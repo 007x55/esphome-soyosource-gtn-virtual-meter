@@ -2,8 +2,7 @@
 #include "esphome/core/log.h"
 #include "esphome/core/helpers.h"
 
-namespace esphome {
-namespace soyosource_inverter_emulator {
+namespace esphome::soyosource_inverter_emulator {
 
 static const char *const TAG = "soyosource_inverter_emulator";
 
@@ -80,13 +79,13 @@ bool SoyosourceInverterEmulator::parse_soyosource_inverter_emulator_byte_(uint8_
 
   std::vector<uint8_t> data(this->rx_buffer_.begin(), this->rx_buffer_.begin() + frame_len);
 
-  this->on_soyosource_inverter_emulator_data_(function, data);
+  this->on_soyosource_inverter_emulator_data(function, data);
 
   // return false to reset buffer
   return false;
 }
-void SoyosourceInverterEmulator::on_soyosource_inverter_emulator_data_(const uint8_t &function,
-                                                                       const std::vector<uint8_t> &data) {
+void SoyosourceInverterEmulator::on_soyosource_inverter_emulator_data(const uint8_t &function,
+                                                                      const std::vector<uint8_t> &data) {
   if (this->protocol_version_ == SOYOSOURCE_DISPLAY_VERSION) {
     this->on_display_version_data_(function, data);
     return;
@@ -97,7 +96,7 @@ void SoyosourceInverterEmulator::on_soyosource_inverter_emulator_data_(const uin
 
 void SoyosourceInverterEmulator::on_wifi_version_data_(const uint8_t &function, const std::vector<uint8_t> &data) {
   if (data.size() != 12) {
-    ESP_LOGW(TAG, "Invalid response size: %d", data.size());
+    ESP_LOGW(TAG, "Invalid response size: %zu", data.size());
     return;
   }
 
@@ -171,19 +170,19 @@ void SoyosourceInverterEmulator::on_wifi_version_data_(const uint8_t &function, 
       this->settings_counter_++;
       break;
     case WRITE_SETTINGS_COMMAND:
-      ESP_LOGI(TAG, "Write settings: %s", format_hex_pretty(&data.front(), data.size()).c_str());
+      ESP_LOGI(TAG, "Write settings: %s", format_hex_pretty(&data.front(), data.size()).c_str());  // NOLINT
       break;
     case REBOOT_COMMAND:
       ESP_LOGI(TAG, "Reboot command received");
       break;
     default:
-      ESP_LOGW(TAG, "Unhandled request received: %s", format_hex_pretty(&data.front(), data.size()).c_str());
+      ESP_LOGW(TAG, "Unhandled request received: %s", format_hex_pretty(&data.front(), data.size()).c_str());  // NOLINT
   }
 }
 
 void SoyosourceInverterEmulator::on_display_version_data_(const uint8_t &function, const std::vector<uint8_t> &data) {
   if (data.size() != 6) {
-    ESP_LOGW(TAG, "Invalid request size: %d", data.size());
+    ESP_LOGW(TAG, "Invalid request size: %zu", data.size());
     return;
   }
 
@@ -268,13 +267,13 @@ void SoyosourceInverterEmulator::on_display_version_data_(const uint8_t &functio
       this->settings_counter_++;
       break;
     case WRITE_SETTINGS_COMMAND:
-      ESP_LOGI(TAG, "Write settings: %s", format_hex_pretty(&data.front(), data.size()).c_str());
+      ESP_LOGI(TAG, "Write settings: %s", format_hex_pretty(&data.front(), data.size()).c_str());  // NOLINT
       break;
     case REBOOT_COMMAND:
       ESP_LOGI(TAG, "Reboot command received");
       break;
     default:
-      ESP_LOGW(TAG, "Unhandled request received: %s", format_hex_pretty(&data.front(), data.size()).c_str());
+      ESP_LOGW(TAG, "Unhandled request received: %s", format_hex_pretty(&data.front(), data.size()).c_str());  // NOLINT
   }
 }
 
@@ -339,5 +338,4 @@ void SoyosourceInverterEmulator::send_settings_(const uint16_t &unknown1, const 
   this->flush();
 }
 
-}  // namespace soyosource_inverter_emulator
-}  // namespace esphome
+}  // namespace esphome::soyosource_inverter_emulator

@@ -8,12 +8,12 @@
 #include "esphome/components/text_sensor/text_sensor.h"
 #include "esphome/components/uart/uart.h"
 
-namespace esphome {
-namespace soyosource_display {
+namespace esphome::soyosource_display {
 
 enum ProtocolVersion {
   SOYOSOURCE_WIFI_VERSION,
   SOYOSOURCE_DISPLAY_VERSION,
+  SOYOSOURCE_DISPLAY_AND_WIFI_VERSION,
 };
 
 struct SoyosourceSettingsFrameT {
@@ -88,7 +88,7 @@ class SoyosourceDisplay : public uart::UARTDevice, public PollingComponent {
 
   SoyosourceSettingsFrameT get_current_settings() { return current_settings_; }
   void register_select_listener(uint8_t holding_register, const std::function<void(uint8_t)> &func);
-  void send_command(uint8_t function);
+  virtual void send_command(uint8_t function);
   void display_version_send_command(uint8_t function, uint8_t value1, uint8_t value2, uint8_t value3);
   void update_setting(uint8_t holding_register, float value);
   void loop() override;
@@ -99,31 +99,31 @@ class SoyosourceDisplay : public uart::UARTDevice, public PollingComponent {
  protected:
   ProtocolVersion protocol_version_{SOYOSOURCE_WIFI_VERSION};
 
-  binary_sensor::BinarySensor *fan_running_binary_sensor_;
-  binary_sensor::BinarySensor *limiter_connected_binary_sensor_;
+  binary_sensor::BinarySensor *fan_running_binary_sensor_{nullptr};
+  binary_sensor::BinarySensor *limiter_connected_binary_sensor_{nullptr};
 
-  number::Number *start_voltage_number_;
-  number::Number *shutdown_voltage_number_;
-  number::Number *output_power_limit_number_;
-  number::Number *start_delay_number_;
+  number::Number *start_voltage_number_{nullptr};
+  number::Number *shutdown_voltage_number_{nullptr};
+  number::Number *output_power_limit_number_{nullptr};
+  number::Number *start_delay_number_{nullptr};
 
-  select::Select *operation_mode_select_;
+  select::Select *operation_mode_select_{nullptr};
 
-  sensor::Sensor *error_bitmask_sensor_;
-  sensor::Sensor *operation_mode_id_sensor_;
-  sensor::Sensor *operation_status_id_sensor_;
-  sensor::Sensor *battery_voltage_sensor_;
-  sensor::Sensor *battery_current_sensor_;
-  sensor::Sensor *battery_power_sensor_;
-  sensor::Sensor *ac_voltage_sensor_;
-  sensor::Sensor *ac_frequency_sensor_;
-  sensor::Sensor *temperature_sensor_;
-  sensor::Sensor *total_energy_sensor_;
-  sensor::Sensor *output_power_sensor_;
+  sensor::Sensor *error_bitmask_sensor_{nullptr};
+  sensor::Sensor *operation_mode_id_sensor_{nullptr};
+  sensor::Sensor *operation_status_id_sensor_{nullptr};
+  sensor::Sensor *battery_voltage_sensor_{nullptr};
+  sensor::Sensor *battery_current_sensor_{nullptr};
+  sensor::Sensor *battery_power_sensor_{nullptr};
+  sensor::Sensor *ac_voltage_sensor_{nullptr};
+  sensor::Sensor *ac_frequency_sensor_{nullptr};
+  sensor::Sensor *temperature_sensor_{nullptr};
+  sensor::Sensor *total_energy_sensor_{nullptr};
+  sensor::Sensor *output_power_sensor_{nullptr};
 
-  text_sensor::TextSensor *operation_mode_text_sensor_;
-  text_sensor::TextSensor *operation_status_text_sensor_;
-  text_sensor::TextSensor *errors_text_sensor_;
+  text_sensor::TextSensor *operation_mode_text_sensor_{nullptr};
+  text_sensor::TextSensor *operation_status_text_sensor_{nullptr};
+  text_sensor::TextSensor *errors_text_sensor_{nullptr};
 
   std::vector<SoyosourceSelectListener> select_listeners_;
   std::vector<uint8_t> rx_buffer_;
@@ -135,6 +135,7 @@ class SoyosourceDisplay : public uart::UARTDevice, public PollingComponent {
   void on_soyosource_settings_data_(const std::vector<uint8_t> &data);
   void on_ms51_status_data_(const std::vector<uint8_t> &data);
   void on_ms51_settings_data_(const std::vector<uint8_t> &data);
+  void on_ms51_v2_settings_data_(const std::vector<uint8_t> &data);
   bool parse_soyosource_display_byte_(uint8_t byte);
   void publish_state_(binary_sensor::BinarySensor *binary_sensor, const bool &state);
   void publish_state_(number::Number *number, float value);
@@ -153,5 +154,4 @@ class SoyosourceDisplay : public uart::UARTDevice, public PollingComponent {
   std::string error_bits_to_string_(const uint8_t &mask);
 };
 
-}  // namespace soyosource_display
-}  // namespace esphome
+}  // namespace esphome::soyosource_display

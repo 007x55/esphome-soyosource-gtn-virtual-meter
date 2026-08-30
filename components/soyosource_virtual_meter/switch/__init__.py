@@ -1,11 +1,11 @@
 import esphome.codegen as cg
 from esphome.components import switch
 import esphome.config_validation as cv
-from esphome.const import CONF_ICON, CONF_ID, CONF_RESTORE_MODE
+from esphome.const import CONF_RESTORE_MODE
 
 from .. import (
     CONF_SOYOSOURCE_VIRTUAL_METER_ID,
-    SoyosourceVirtualMeter,
+    SOYOSOURCE_VIRTUAL_METER_COMPONENT_SCHEMA,
     soyosource_virtual_meter_ns,
 )
 
@@ -38,29 +38,32 @@ RESTORE_MODES = {
     "ALWAYS_ON": SoyosourceSwitchRestoreMode.SOYOSOURCE_SWITCH_ALWAYS_ON,
 }
 
-CONFIG_SCHEMA = cv.Schema(
+CONFIG_SCHEMA = SOYOSOURCE_VIRTUAL_METER_COMPONENT_SCHEMA.extend(
     {
-        cv.GenerateID(CONF_SOYOSOURCE_VIRTUAL_METER_ID): cv.use_id(
-            SoyosourceVirtualMeter
-        ),
-        cv.Optional(CONF_MANUAL_MODE): switch.SWITCH_SCHEMA.extend(
+        cv.Optional(CONF_MANUAL_MODE): switch.switch_schema(
+            SoyosourceSwitch,
+            icon=ICON_MANUAL_MODE,
+        )
+        .extend(
             {
-                cv.GenerateID(): cv.declare_id(SoyosourceSwitch),
-                cv.Optional(CONF_ICON, default=ICON_MANUAL_MODE): cv.icon,
                 cv.Optional(CONF_RESTORE_MODE, default="RESTORE_DEFAULT_OFF"): cv.enum(
                     RESTORE_MODES, upper=True, space="_"
                 ),
             }
-        ).extend(cv.COMPONENT_SCHEMA),
-        cv.Optional(CONF_EMERGENCY_POWER_OFF): switch.SWITCH_SCHEMA.extend(
+        )
+        .extend(cv.COMPONENT_SCHEMA),
+        cv.Optional(CONF_EMERGENCY_POWER_OFF): switch.switch_schema(
+            SoyosourceSwitch,
+            icon=ICON_EMERGENCY_POWER_OFF,
+        )
+        .extend(
             {
-                cv.GenerateID(): cv.declare_id(SoyosourceSwitch),
-                cv.Optional(CONF_ICON, default=ICON_EMERGENCY_POWER_OFF): cv.icon,
                 cv.Optional(CONF_RESTORE_MODE, default="RESTORE_DEFAULT_OFF"): cv.enum(
                     RESTORE_MODES, upper=True, space="_"
                 ),
             }
-        ).extend(cv.COMPONENT_SCHEMA),
+        )
+        .extend(cv.COMPONENT_SCHEMA),
     }
 )
 
@@ -70,9 +73,8 @@ async def to_code(config):
     for key in SWITCHES:
         if key in config:
             conf = config[key]
-            var = cg.new_Pvariable(conf[CONF_ID])
+            var = await switch.new_switch(conf)
             await cg.register_component(var, conf)
-            await switch.register_switch(var, conf)
             cg.add(getattr(hub, f"set_{key}_switch")(var))
             cg.add(var.set_parent(hub))
             cg.add(var.set_restore_mode(conf[CONF_RESTORE_MODE]))

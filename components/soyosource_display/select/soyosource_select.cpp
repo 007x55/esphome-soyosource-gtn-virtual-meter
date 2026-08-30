@@ -1,8 +1,7 @@
 #include "soyosource_select.h"
 #include "esphome/core/log.h"
 
-namespace esphome {
-namespace soyosource_display {
+namespace esphome::soyosource_display {
 
 static const char *const TAG = "soyosource_display.select";
 
@@ -25,9 +24,9 @@ void SoyosourceSelect::dump_config() {
   LOG_SELECT(TAG, "SoyosourceDisplay Select", this);
   ESP_LOGCONFIG(TAG, "  Select has register %u", this->holding_register_);
   ESP_LOGCONFIG(TAG, "  Options are:");
-  auto options = this->traits.get_options();
-  for (auto i = 0; i < this->mappings_.size(); i++) {
-    ESP_LOGCONFIG(TAG, "    %i: %s", this->mappings_.at(i), options.at(i).c_str());
+  const auto &options = this->traits.get_options();
+  for (size_t i = 0; i < this->mappings_.size(); i++) {
+    ESP_LOGCONFIG(TAG, "    %i: %s", this->mappings_.at(i), options.at(i));
   }
 }
 
@@ -43,5 +42,4 @@ void SoyosourceSelect::control(const std::string &value) {
   ESP_LOGW(TAG, "Invalid value %s", value.c_str());
 }
 
-}  // namespace soyosource_display
-}  // namespace esphome
+}  // namespace esphome::soyosource_display

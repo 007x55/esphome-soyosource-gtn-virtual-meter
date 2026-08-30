@@ -2,8 +2,7 @@
 #include "esphome/core/log.h"
 #include "esphome/core/application.h"
 
-namespace esphome {
-namespace soyosource_virtual_meter {
+namespace esphome::soyosource_virtual_meter {
 
 static const char *const TAG = "soyosource_virtual_meter.switch";
 
@@ -34,7 +33,8 @@ void SoyosourceSwitch::setup() {
 }
 void SoyosourceSwitch::dump_config() {
   LOG_SWITCH("", "SoyosourceVirtualMeter Switch", this);
-  const LogString *restore_mode = LOG_STR("");
+  // NOLINTNEXTLINE(clang-analyzer-deadcode.DeadStores)
+  const LogString *restore_mode = LOG_STR("Unknown");
   switch (this->restore_mode_) {
     case SOYOSOURCE_SWITCH_RESTORE_DEFAULT_OFF:
       restore_mode = LOG_STR("Restore (Defaults to OFF)");
@@ -53,5 +53,4 @@ void SoyosourceSwitch::dump_config() {
 }
 void SoyosourceSwitch::write_state(bool state) { this->publish_state(state); }
 
-}  // namespace soyosource_virtual_meter
-}  // namespace esphome
+}  // namespace esphome::soyosource_virtual_meter

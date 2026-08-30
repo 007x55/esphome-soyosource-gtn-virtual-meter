@@ -21,15 +21,17 @@ ProtocolVersion = soyosource_display_ns.enum("ProtocolVersion")
 PROTOCOL_VERSION_OPTIONS = {
     "SOYOSOURCE_WIFI_VERSION": ProtocolVersion.SOYOSOURCE_WIFI_VERSION,
     "SOYOSOURCE_DISPLAY_VERSION": ProtocolVersion.SOYOSOURCE_DISPLAY_VERSION,
+    "SOYOSOURCE_DISPLAY_AND_WIFI_VERSION": ProtocolVersion.SOYOSOURCE_DISPLAY_AND_WIFI_VERSION,
 }
 
-CONF_SOYOSOURCE_DISPLAY_COMPONENT_SCHEMA = cv.Schema(
+SOYOSOURCE_DISPLAY_COMPONENT_SCHEMA = cv.Schema(
     {
         cv.GenerateID(CONF_SOYOSOURCE_DISPLAY_ID): cv.use_id(SoyosourceDisplay),
     }
 )
 
-CONFIG_SCHEMA = (
+CONFIG_SCHEMA = cv.All(
+    cv.require_esphome_version(2024, 6, 0),
     cv.Schema(
         {
             cv.GenerateID(): cv.declare_id(SoyosourceDisplay),
@@ -39,7 +41,7 @@ CONFIG_SCHEMA = (
         }
     )
     .extend(cv.polling_component_schema("2s"))
-    .extend(uart.UART_DEVICE_SCHEMA)
+    .extend(uart.UART_DEVICE_SCHEMA),
 )
 
 

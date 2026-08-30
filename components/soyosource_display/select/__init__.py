@@ -1,11 +1,10 @@
 import esphome.codegen as cg
 from esphome.components import select
 import esphome.config_validation as cv
-from esphome.const import CONF_ICON, CONF_ID
 
 from .. import (
-    CONF_SOYOSOURCE_DISPLAY_COMPONENT_SCHEMA,
     CONF_SOYOSOURCE_DISPLAY_ID,
+    SOYOSOURCE_DISPLAY_COMPONENT_SCHEMA,
     soyosource_display_ns,
 )
 from ..const import CONF_OPERATION_MODE
@@ -43,15 +42,20 @@ SELECTS = {
     CONF_OPERATION_MODE: 0x0A,
 }
 
-SOYOSOURCE_SELECT_SCHEMA = select.SELECT_SCHEMA.extend(
-    {
-        cv.GenerateID(): cv.declare_id(SoyosourceSelect),
-        cv.Optional(CONF_ICON, default=ICON_OPERATION_MODE): cv.icon,
-        cv.Optional(CONF_OPTIONSMAP): ensure_option_map,
-    }
-).extend(cv.COMPONENT_SCHEMA)
+SOYOSOURCE_SELECT_SCHEMA = (
+    select.select_schema(
+        SoyosourceSelect,
+        icon=ICON_OPERATION_MODE,
+    )
+    .extend(
+        {
+            cv.Optional(CONF_OPTIONSMAP): ensure_option_map,
+        }
+    )
+    .extend(cv.COMPONENT_SCHEMA)
+)
 
-CONFIG_SCHEMA = CONF_SOYOSOURCE_DISPLAY_COMPONENT_SCHEMA.extend(
+CONFIG_SCHEMA = SOYOSOURCE_DISPLAY_COMPONENT_SCHEMA.extend(
     {
         cv.Optional(CONF_OPERATION_MODE): SOYOSOURCE_SELECT_SCHEMA,
     }
@@ -65,9 +69,8 @@ async def to_code(config):
         if key in config:
             conf = config[key]
             options_map = conf[CONF_OPTIONSMAP]
-            var = cg.new_Pvariable(conf[CONF_ID])
+            var = await select.new_select(conf, options=list(options_map.values()))
             await cg.register_component(var, conf)
-            await select.register_select(var, conf, options=list(options_map.values()))
             cg.add(var.set_select_mappings(list(options_map.keys())))
 
             cg.add(getattr(hub, f"set_{key}_select")(var))

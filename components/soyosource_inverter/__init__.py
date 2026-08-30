@@ -3,7 +3,7 @@ from esphome.components import soyosource_modbus
 import esphome.config_validation as cv
 from esphome.const import CONF_ID
 
-AUTO_LOAD = ["soyosource_modbus", "sensor", "text_sensor"]
+AUTO_LOAD = ["soyosource_modbus", "binary_sensor", "sensor", "text_sensor"]
 CODEOWNERS = ["@syssi"]
 MULTI_CONF = True
 
@@ -14,10 +14,17 @@ SoyosourceInverter = soyosource_inverter_ns.class_(
     "SoyosourceInverter", cg.PollingComponent, soyosource_modbus.SoyosourceModbusDevice
 )
 
-CONFIG_SCHEMA = (
+SOYOSOURCE_INVERTER_COMPONENT_SCHEMA = cv.Schema(
+    {
+        cv.GenerateID(CONF_SOYOSOURCE_INVERTER_ID): cv.use_id(SoyosourceInverter),
+    }
+)
+
+CONFIG_SCHEMA = cv.All(
+    cv.require_esphome_version(2024, 6, 0),
     cv.Schema({cv.GenerateID(): cv.declare_id(SoyosourceInverter)})
     .extend(cv.polling_component_schema("5s"))
-    .extend(soyosource_modbus.soyosource_modbus_device_schema(0x23))
+    .extend(soyosource_modbus.soyosource_modbus_device_schema(0x23)),
 )
 
 

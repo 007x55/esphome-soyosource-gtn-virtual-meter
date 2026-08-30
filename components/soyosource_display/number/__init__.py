@@ -2,9 +2,6 @@ import esphome.codegen as cg
 from esphome.components import number
 import esphome.config_validation as cv
 from esphome.const import (
-    CONF_ENTITY_CATEGORY,
-    CONF_ICON,
-    CONF_ID,
     CONF_MAX_VALUE,
     CONF_MIN_VALUE,
     CONF_MODE,
@@ -18,8 +15,8 @@ from esphome.const import (
 )
 
 from .. import (
-    CONF_SOYOSOURCE_DISPLAY_COMPONENT_SCHEMA,
     CONF_SOYOSOURCE_DISPLAY_ID,
+    SOYOSOURCE_DISPLAY_COMPONENT_SCHEMA,
     soyosource_display_ns,
 )
 
@@ -73,20 +70,25 @@ SoyosourceNumber = soyosource_display_ns.class_(
     "SoyosourceNumber", number.Number, cg.Component
 )
 
-SOYOSOURCE_NUMBER_SCHEMA = number.NUMBER_SCHEMA.extend(
-    {
-        cv.GenerateID(): cv.declare_id(SoyosourceNumber),
-        cv.Optional(CONF_ICON, default=ICON_EMPTY): cv.icon,
-        cv.Optional(CONF_STEP, default=0.01): cv.float_,
-        cv.Optional(CONF_UNIT_OF_MEASUREMENT, default=UNIT_VOLT): cv.string_strict,
-        cv.Optional(CONF_MODE, default="BOX"): cv.enum(number.NUMBER_MODES, upper=True),
-        cv.Optional(
-            CONF_ENTITY_CATEGORY, default=ENTITY_CATEGORY_CONFIG
-        ): cv.entity_category,
-    }
-).extend(cv.COMPONENT_SCHEMA)
+SOYOSOURCE_NUMBER_SCHEMA = (
+    number.number_schema(
+        SoyosourceNumber,
+        icon=ICON_EMPTY,
+        entity_category=ENTITY_CATEGORY_CONFIG,
+        unit_of_measurement=UNIT_VOLT,
+    )
+    .extend(
+        {
+            cv.Optional(CONF_STEP, default=0.01): cv.float_,
+            cv.Optional(CONF_MODE, default="BOX"): cv.enum(
+                number.NUMBER_MODES, upper=True
+            ),
+        }
+    )
+    .extend(cv.COMPONENT_SCHEMA)
+)
 
-CONFIG_SCHEMA = CONF_SOYOSOURCE_DISPLAY_COMPONENT_SCHEMA.extend(
+CONFIG_SCHEMA = SOYOSOURCE_DISPLAY_COMPONENT_SCHEMA.extend(
     {
         cv.Optional(CONF_START_VOLTAGE): SOYOSOURCE_NUMBER_SCHEMA.extend(
             {
@@ -131,15 +133,13 @@ async def to_code(config):
     for key, address in NUMBERS.items():
         if key in config:
             conf = config[key]
-            var = cg.new_Pvariable(conf[CONF_ID])
-            await cg.register_component(var, conf)
-            await number.register_number(
-                var,
+            var = await number.new_number(
                 conf,
                 min_value=conf[CONF_MIN_VALUE],
                 max_value=conf[CONF_MAX_VALUE],
                 step=conf[CONF_STEP],
             )
+            await cg.register_component(var, conf)
             cg.add(getattr(hub, f"set_{key}_number")(var))
             cg.add(var.set_parent(hub))
             cg.add(var.set_holding_register(address))
