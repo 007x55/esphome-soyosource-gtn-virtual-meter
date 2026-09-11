@@ -1,0 +1,6 @@
+{
+  "name": "Soyosource GTN",
+  "description": "Soyosource GTN Inverter Monitor, Limiter & Virtual Power Meter Controller",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
