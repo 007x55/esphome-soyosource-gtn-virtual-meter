@@ -2,8 +2,8 @@ substitutions:
   name: soyosource-gtn-virtual-meter
   device_description: "Monitor a Soyosource GTN and control the power output on demand both via RS485"
   external_components_source: github://syssi/esphome-soyosource-gtn-virtual-meter@main
-  tx_pin: GPIO1
-  rx_pin: GPIO3
+  tx_pin: GPIO4
+  rx_pin: GPIO5
 
 esphome:
   name: ${name}
@@ -14,9 +14,9 @@ esphome:
     version: 2.6.0
 
 esp32:
-  board: esp-wrover-kit
+  board: esp32-s3-devkitc-1
   framework:
-    type: esp-idf
+    type: arduino
 
 external_components:
   - source: ${external_components_source}
