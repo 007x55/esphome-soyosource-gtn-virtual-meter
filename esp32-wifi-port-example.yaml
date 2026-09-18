@@ -1,0 +1,116 @@
+substitutions:
+  name: soyosource-gtn-esp32-wifi-port
+  device_description: "Monitor and control Soyosource GTN via USB TTL-WIFI port using ESP32"
+  external_components_source: components
+  tx_pin: GPIO17 # Connect to USB Cable White wire (Inverter RXD)
+  rx_pin: GPIO16 # Connect to USB Cable Green wire (Inverter TXD)
+
+esphome:
+  name: ${name}
+  friendly_name: "Soyosource GTN"
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+external_components:
+  - source: ${external_components_source}
+    refresh: 0s
+
+wifi:
+  ssid: "YOUR_WIFI_SSID"
+  password: "YOUR_WIFI_PASSWORD"
+  ap:
+    ssid: "Soyosource-ESP32-AP"
+
+captive_portal:
+
+ota:
+  - platform: esphome
+
+logger:
+  level: INFO
+
+web_server:
+  port: 80
+
+api:
+
+# The USB port (TTL-WIFI) operates at 9600 baud directly at TTL logic level (No RS485 module needed!)
+uart:
+  - id: uart_0
+    baud_rate: 9600
+    tx_pin: ${tx_pin}
+    rx_pin: ${rx_pin}
+
+soyosource_display:
+  - id: display0
+    uart_id: uart_0
+    protocol_version: SOYOSOURCE_WIFI_VERSION
+    update_interval: 3s
+
+binary_sensor:
+  - platform: soyosource_display
+    fan_running:
+      name: "Fan Running"
+    limiter_connected:
+      name: "Limiter Clamp Connected"
+
+button:
+  - platform: soyosource_display
+    restart:
+      name: "Restart Inverter"
+
+number:
+  - platform: soyosource_display
+    start_voltage:
+      name: "Start Voltage"
+    shutdown_voltage:
+      name: "Shutdown Voltage"
+    output_power_limit:
+      name: "Output Power Limit"
+    start_delay:
+      name: "Start Delay"
+
+select:
+  - platform: soyosource_display
+    operation_mode:
+      name: "Operation Mode"
+      optionsmap:
+        1: "PV"
+        2: "Battery Constant Power"
+        17: "PV Limit"
+        18: "Battery Limit"
+
+sensor:
+  - platform: soyosource_display
+    battery_voltage:
+      name: "Battery Voltage"
+    battery_current:
+      name: "Battery Current"
+    battery_power:
+      name: "Battery Power"
+    ac_voltage:
+      name: "AC Grid Voltage"
+    ac_frequency:
+      name: "AC Frequency"
+    temperature:
+      name: "Temperature"
+    error_bitmask:
+      name: "Error Bitmask"
+    operation_mode_id:
+      name: "Operation Mode ID"
+    operation_status_id:
+      name: "Operation Status ID"
+    total_energy:
+      name: "Total Energy"
+
+text_sensor:
+  - platform: soyosource_display
+    operation_mode:
+      name: "Operation Mode Name"
+    operation_status:
+      name: "Operation Status Name"
+    errors:
+      name: "Error Details"
