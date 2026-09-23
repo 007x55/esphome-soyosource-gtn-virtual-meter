@@ -18,28 +18,33 @@ class OemTest : public ::testing::Test {
 };
 
 TEST_F(OemTest, ConsumptionAboveMaxPlusBuffer) {
-  // 5000 > 2000 + 10 -> return max_power_demand
+  // Consumption at or above max_power_demand is clamped to max_power_demand.
   EXPECT_EQ(m_.calc_oem(5000), 2000);
 }
 
 TEST_F(OemTest, ConsumptionJustAboveMaxPlusBuffer) {
-  // 2011 > 2010 -> return max
+  // Consumption above max_power_demand is clamped to max_power_demand.
   EXPECT_EQ(m_.calc_oem(2011), 2000);
 }
 
-TEST_F(OemTest, ConsumptionAboveMaxNotBuffer) {
-  // 2010 <= 2010 (not > max+buffer), but 2010 > 2000 -> abs(10 - 2000) = 1990
-  EXPECT_EQ(m_.calc_oem(2010), 1990);
+TEST_F(OemTest, ConsumptionAtMax) {
+  // Consumption at max_power_demand is clamped to max_power_demand.
+  EXPECT_EQ(m_.calc_oem(2000), 2000);
 }
 
 TEST_F(OemTest, ConsumptionJustAboveMax) {
-  // 2001 > 2000 -> 1990
-  EXPECT_EQ(m_.calc_oem(2001), 1990);
+  // Consumption just above max_power_demand is clamped to max_power_demand.
+  EXPECT_EQ(m_.calc_oem(2001), 2000);
 }
 
 TEST_F(OemTest, ConsumptionAtMin) {
-  // 100 >= 100 -> (abs(100-10) + (100-10)) / 2 = 90
-  EXPECT_EQ(m_.calc_oem(100), 90);
+  // The buffer-adjusted demand is below min_power_demand, so output is zero.
+  EXPECT_EQ(m_.calc_oem(100), 0);
+}
+
+TEST_F(OemTest, ConsumptionAtMinPlusBuffer) {
+  // The buffer-adjusted demand reaches min_power_demand.
+  EXPECT_EQ(m_.calc_oem(110), 100);
 }
 
 TEST_F(OemTest, ConsumptionInRange) {

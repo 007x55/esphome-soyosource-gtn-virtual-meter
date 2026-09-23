@@ -34,15 +34,10 @@ logger:
   baud_rate: 0
   level: INFO
 
-# If you use Home Assistant please remove this `mqtt` section and uncomment the `api` component!
-# The native API has many advantages over MQTT: https://esphome.io/components/api.html#advantages-over-mqtt
-mqtt:
-  broker: !secret mqtt_host
-  username: !secret mqtt_username
-  password: !secret mqtt_password
-  id: mqtt_client
-
-# api:
+# The native API is used for Home Assistant connectivity.
+api:
+  encryption:
+    key:     baan_pi_kao_rangsit__encryption_key: "YOUR_API_KEY"
 
 uart:
   - id: uart_0

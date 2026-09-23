@@ -154,32 +154,14 @@ int16_t SoyosourceVirtualMeter::calculate_power_demand_oem_(int16_t consumption)
   ESP_LOGD(TAG, "'%s': Using the dumb OEM method to calculate the power demand: %d", this->get_modbus_name(),
            consumption);
 
-  // 5000 > 2000 + 10: 2000
-  // 2011 > 2000 + 10: 2000
-  // 2010 > 2000 + 10: continue
-  // 500 > 2000 + 10: continue
-  if (consumption > this->max_power_demand_ + this->buffer_)
+  if (consumption >= this->max_power_demand_)
     return this->max_power_demand_;
 
-  // 5000 > 2000: abs(10 - 2000) = 1990 (already handled above!)
-  // 2011 > 2000: abs(10 - 2000) = 1990 (already handled above!)
-  // 2010 > 2000: abs(10 - 2000) = 1990
-  // 2001 > 2000: abs(10 - 2000) = 1990
-  // 2000 > 2000: continue
-  //  500 > 2000: continue
-  if (consumption > this->max_power_demand_)
-    return std::abs(this->buffer_ - this->max_power_demand_);
+  const int16_t power_demand = consumption - this->buffer_;
+  if (power_demand < this->min_power_demand_)
+    return 0;
 
-  // 2001 >= 100: (abs(2001 - 10) + (2001 - 10)) / 2 = 1991 (already handled above!)
-  // 2000 >= 100: (abs(2000 - 10) + (2000 - 10)) / 2 = 1990
-  //  500 >= 100: (abs(500 - 10) + (500 - 10)) / 2 = 490
-  //  100 >= 100: (abs(100 - 10) + (100 - 10)) / 2 = 90
-  //   90 >= 100: continue
-  if (consumption >= this->min_power_demand_)
-    return (int16_t) ((std::abs(consumption - this->buffer_) + (consumption - this->buffer_)) / 2);
-
-  // 90: 0
-  return 0;
+  return power_demand;
 }
 
 bool SoyosourceVirtualMeter::inactivity_timeout_() {
